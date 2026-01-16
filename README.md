@@ -1,4 +1,9 @@
-# Satellite Data Viewer
+# 🛰️ Satellite Data Viewer
+
+[![GitHub](https://img.shields.io/badge/GitHub-satellite--data--viewer-blue?logo=github)](https://github.com/hiroAkikoDy/satellite-data-viewer)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php)](https://www.php.net/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
 
 JAXA衛星データ（GCOM-C/SGLI）と気象庁平年値を統合し、農地の観測データを可視化するWebアプリケーション
 
@@ -668,4 +673,16 @@ pip install -r requirements.txt
 
 ## 📧 お問い合わせ
 
-問題や質問がある場合は、GitHubのIssuesページでお知らせください。
+問題や質問がある場合は、[GitHubのIssuesページ](https://github.com/hiroAkikoDy/satellite-data-viewer/issues)でお知らせください。
+
+## 🔗 リンク
+
+- **GitHubリポジトリ**: https://github.com/hiroAkikoDy/satellite-data-viewer
+- **セキュリティチェックリスト**: [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md)
+- **デプロイメントガイド**: [DEPLOYMENT.md](DEPLOYMENT.md)
+
+---
+
+**開発**: Koga Hiroaki with Claude Sonnet 4.5
+**バージョン**: 1.0.0
+**最終更新**: 2026-01-16
