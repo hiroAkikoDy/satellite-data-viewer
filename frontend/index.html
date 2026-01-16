@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JAXA衛星データと気象庁平年値を統合した農地観測データビューワー">
+    <title>🛰️ Satellite Data Viewer</title>
+
+    <!-- Leaflet.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-container">
+            <h1 class="header-title">🛰️ Satellite Data Viewer</h1>
+            <p class="header-subtitle">衛星観測データ統合ビューワー</p>
+            <nav class="header-nav">
+                <button class="nav-btn active" data-view="map">地図表示</button>
+                <button class="nav-btn" data-view="data">データ一覧</button>
+                <button class="nav-btn" data-view="settings">設定</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メインコンテナ -->
+    <div class="main-container">
+        <!-- サイドバー -->
+        <aside class="sidebar">
+            <!-- 観測地点追加フォーム（Phase 7で実装） -->
+            <section class="card">
+                <h2 class="card-title">📍 観測地点追加</h2>
+
+                <!-- バリデーションエラー表示 -->
+                <div id="validation-errors" class="validation-errors" style="display: none;"></div>
+
+                <form id="addLocationForm" class="form">
+                    <div class="form-group">
+                        <label for="locationName">地点名</label>
+                        <input type="text" id="locationName" name="name" placeholder="例: Nanaka Farm" required>
+                        <small class="form-hint">必須項目です</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="latitude">緯度</label>
+                            <input type="number" id="latitude" name="latitude" step="0.000001" placeholder="35.6812" required>
+                            <small class="form-hint">日本国内: 24〜46</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="longitude">経度</label>
+                            <input type="number" id="longitude" name="longitude" step="0.000001" placeholder="139.7671" required>
+                            <small class="form-hint">日本国内: 122〜154</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="prefecture">都道府県</label>
+                        <input type="text" id="prefecture" name="prefecture" placeholder="例: 熊本県">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">市区町村</label>
+                        <input type="text" id="city" name="city" placeholder="例: 山鹿市">
+                    </div>
+                    <div class="form-group">
+                        <label for="nearestStation">最寄り気象観測所</label>
+                        <input type="text" id="nearestStation" name="nearest_station_id" placeholder="自動検出" readonly>
+                        <small class="form-hint">緯度経度から自動的に設定されます</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">地点を追加</button>
+                </form>
+            </section>
+
+            <!-- 表示期間選択 -->
+            <section class="card">
+                <h2 class="card-title">📅 表示期間</h2>
+                <div class="form-group">
+                    <label for="periodSelect">データ取得期間</label>
+                    <select id="periodSelect" class="form-select">
+                        <option value="7">過去7日間</option>
+                        <option value="14">過去14日間</option>
+                        <option value="30" selected>過去30日間</option>
+                        <option value="60">過去60日間</option>
+                        <option value="90">過去90日間</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- データ種類選択 -->
+            <section class="card">
+                <h2 class="card-title">📊 表示データ</h2>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="showLST" checked>
+                        <span>地表面温度（LST）</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="showNDVI" checked>
+                        <span>植生指標（NDVI）</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="showComparison" checked>
+                        <span>平年値比較</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- 凡例 -->
+            <section class="card">
+                <h2 class="card-title">🎨 温度凡例</h2>
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #2196F3;"></span>
+                        <span>< 10°C</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #4CAF50;"></span>
+                        <span>10-20°C</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #FFEB3B;"></span>
+                        <span>20-30°C</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #FF9800;"></span>
+                        <span>30-40°C</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #F44336;"></span>
+                        <span>> 40°C</span>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- メインエリア -->
+        <main class="main-content">
+            <!-- 地図エリア -->
+            <section class="card map-section">
+                <div class="card-header">
+                    <h2 class="card-title">🗺️ 観測地点マップ</h2>
+                    <button id="refreshBtn" class="btn btn-secondary">🔄 更新</button>
+                </div>
+                <div id="map" class="map-container"></div>
+            </section>
+
+            <!-- 最新データ一覧 -->
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 最新観測データ</h2>
+                    <button id="exportBtn" class="btn btn-secondary">📥 CSVエクスポート</button>
+                </div>
+                <div class="table-container">
+                    <table id="dataTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>地点名</th>
+                                <th>観測日</th>
+                                <th>LST (°C)</th>
+                                <th>NDVI</th>
+                                <th>平年差 (°C)</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody">
+                            <tr>
+                                <td colspan="6" class="loading-cell">
+                                    <div class="loading-spinner"></div>
+                                    <p>データを読み込み中...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- グラフエリア（動的に生成） -->
+            <section id="chartSection" class="card" style="display: none;">
+                <div class="card-header">
+                    <h2 class="card-title">📈 時系列グラフ</h2>
+                    <button id="closeChartBtn" class="btn btn-secondary">✕ 閉じる</button>
+                </div>
+                <canvas id="dataChart" width="800" height="400"></canvas>
+            </section>
+
+            <!-- 平年値比較セクション -->
+            <section id="comparisonSection" class="card" style="display: none;">
+                <div class="card-header">
+                    <h2 class="card-title">📊 観測値と平年値の比較</h2>
+                    <button id="closeComparisonBtn" class="btn btn-secondary">✕ 閉じる</button>
+                </div>
+
+                <!-- 比較サマリー -->
+                <div id="comparisonSummary" class="comparison-summary-container">
+                    <!-- JavaScriptで動的生成 -->
+                </div>
+
+                <!-- 期間選択 -->
+                <div class="comparison-controls">
+                    <label class="control-label">表示期間:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="comparisonPeriod" value="7">
+                            <span>7日間</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="comparisonPeriod" value="30" checked>
+                            <span>30日間</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="comparisonPeriod" value="90">
+                            <span>90日間</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 比較グラフ -->
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+
+                <!-- グラフ操作ヒント -->
+                <div class="chart-hint">
+                    <small>💡 グラフにマウスを合わせると詳細データが表示されます</small>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2026 Satellite Data Viewer. All rights reserved.</p>
+            <p class="footer-credits">
+                データ提供: <a href="https://gportal.jaxa.jp/" target="_blank">JAXA G-Portal</a> /
+                <a href="https://www.jma.go.jp/" target="_blank">気象庁</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- モーダル（エラー表示用） -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3 id="modalTitle">通知</h3>
+            <p id="modalMessage"></p>
+        </div>
+    </div>
+
+    <!-- Leaflet.js -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="js/app.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/chart.js"></script>
+</body>
+</html>

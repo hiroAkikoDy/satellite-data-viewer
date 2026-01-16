@@ -1,0 +1,36 @@
+# 認証情報・環境設定
+backend/config.php
+.env
+.env.local
+.env.production
+
+# データファイル
+data/
+*.csv
+*.h5
+*.hdf5
+
+# ログファイル
+*.log
+backend/logs/
+logs/
+
+# 一時ファイル
+*.tmp
+*.bak
+*~
+tmpclaude-*
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE設定
+.vscode/
+.idea/
+*.swp
+
+# バックアップ
+backup/
+*.sql.gz
