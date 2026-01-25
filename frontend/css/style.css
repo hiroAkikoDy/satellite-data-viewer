@@ -681,6 +681,15 @@ body {
 .chart-container {
     position: relative;
     margin-bottom: 1rem;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.chart-container canvas {
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 400px !important;
 }
 
 .chart-hint {
@@ -734,6 +743,12 @@ body {
 
     .map-container {
         height: 400px;
+    }
+
+    .chart-container {
+        height: 300px !important;
+        min-height: 250px !important;
+        max-height: 350px !important;
     }
 
     .form-row {
@@ -792,6 +807,12 @@ body {
 
     .map-container {
         height: 300px;
+    }
+
+    .chart-container {
+        height: 250px !important;
+        min-height: 200px !important;
+        max-height: 300px !important;
     }
 
     .btn {

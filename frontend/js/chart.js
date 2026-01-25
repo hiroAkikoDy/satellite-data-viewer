@@ -270,6 +270,7 @@ async function showComparisonChart(locationId, days = 30) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                aspectRatio: 2,  // 幅:高さ = 2:1
                 interaction: {
                     mode: 'index',
                     intersect: false
@@ -279,13 +280,24 @@ async function showComparisonChart(locationId, days = 30) {
                         display: true,
                         text: `${location.name} - 観測値と平年値の比較`,
                         font: {
-                            size: 16,
+                            size: 14,
                             weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10
                         }
                     },
                     legend: {
                         display: true,
-                        position: 'top'
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 12
+                            },
+                            padding: 10,
+                            boxWidth: 20
+                        }
                     },
                     tooltip: {
                         callbacks: {
@@ -311,11 +323,14 @@ async function showComparisonChart(locationId, days = 30) {
                             display: true,
                             text: '気温 (°C)',
                             font: {
-                                size: 14,
+                                size: 12,
                                 weight: 'bold'
                             }
                         },
                         ticks: {
+                            font: {
+                                size: 11
+                            },
                             callback: function(value) {
                                 return value + '°C';
                             }
@@ -327,9 +342,16 @@ async function showComparisonChart(locationId, days = 30) {
                             display: true,
                             text: '観測日',
                             font: {
-                                size: 14,
+                                size: 12,
                                 weight: 'bold'
                             }
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            maxRotation: 45,
+                            minRotation: 45
                         }
                     }
                 }
