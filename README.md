@@ -11,6 +11,7 @@ JAXA衛星データ（GCOM-C/SGLI）と気象庁平年値を統合し、農地�
 
 - [機能概要](#機能概要)
 - [システム構成](#システム構成)
+- [形式的要求定義](#形式的要求定義)
 - [セットアップ](#セットアップ)
 - [使用方法](#使用方法)
 - [API仕様](#api仕様)
@@ -58,6 +59,62 @@ satellite-viewer/
 │   └── backup/         # バックアップCSV
 └── .env                # 環境変数（Gitにコミットされない）
 ```
+
+## 📐 形式的要求定義
+
+本プロジェクトは、**要求工学（Requirements Engineering）** の形式的手法を適用して開発されています。
+
+### 適用手法
+
+1. **KAOS法（ゴール志向分析）**
+   - 最上位ゴール: 農地観測の意思決定支援
+   - 25個のゴールを4階層に精緻化
+   - 障害分析と解決策の体系的導出
+
+2. **NetworkX（構造的解析）**
+   - ゴール依存関係グラフの可視化
+   - PageRankによる重要度分析
+   - ボトルネック・SPOF（単一障害点）の識別
+
+3. **Alloy（形式的検証）**
+   - 不変条件の形式的記述
+   - 安全性プロパティの論理的検証
+   - セキュリティ制約の形式化
+
+### 分析結果
+
+**重要度トップ5（PageRank）**:
+1. G1.3.1: 3本線グラフ (0.0598)
+2. G1.1.1: LST表示 (0.0438)
+3. G1.2.1: 最寄り観測所検索 (0.0438)
+
+**ボトルネック（媒介中心性）**:
+- G2: データ信頼性保証 (0.0181)
+  - 対策: セキュリティテスト12項目で防御
+
+**単一障害点（SPOF）**:
+- API、Python、Frontend、Browser
+  - 対策: キャッシング機構の導入計画
+
+### ドキュメント
+
+- [📄 REQUIREMENTS_ENGINEERING.md](REQUIREMENTS_ENGINEERING.md) - 包括的要求定義書
+- [🔬 requirements_analysis.py](requirements_analysis.py) - NetworkX分析スクリプト
+- [📝 satellite_viewer.als](satellite_viewer.als) - Alloy形式的仕様
+- [📊 ゴール依存関係グラフ](goal_dependency_graph.png)
+- [🏗️ コンポーネント依存関係グラフ](component_dependency_graph.png)
+
+### トレーサビリティ
+
+すべての要求は実装とテストに紐付けられています：
+
+| ゴールID | 要求 | 実装 | 検証 |
+|---------|------|------|------|
+| G2.2.1 | SQLi防御 | backend/api.php | test_security.sh:Test 1,2 |
+| G2.2.2 | XSS防御 | backend/api.php:446,477-480 | test_security.sh:Test 3 |
+| G1.3.1 | 3本線グラフ | frontend/js/chart.js:231-269 | 目視確認 |
+
+完全なマトリクスは [REQUIREMENTS_ENGINEERING.md](REQUIREMENTS_ENGINEERING.md) を参照。
 
 ## 🚀 セットアップ
 
