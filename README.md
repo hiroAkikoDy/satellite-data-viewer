@@ -98,11 +98,22 @@ satellite-viewer/
 
 ### ドキュメント
 
+**基本仕様**:
 - [📄 REQUIREMENTS_ENGINEERING.md](REQUIREMENTS_ENGINEERING.md) - 包括的要求定義書
 - [🔬 requirements_analysis.py](requirements_analysis.py) - NetworkX分析スクリプト
-- [📝 satellite_viewer.als](satellite_viewer.als) - Alloy形式的仕様
+- [📝 satellite_viewer.als](satellite_viewer.als) - Alloy形式的仕様（基本版）
 - [📊 ゴール依存関係グラフ](goal_dependency_graph.png)
 - [🏗️ コンポーネント依存関係グラフ](component_dependency_graph.png)
+
+**Geminiレビュー対応（拡張版）**:
+- [🚀 satellite_viewer_enhanced.als](satellite_viewer_enhanced.als) - 動的振る舞いモデル
+  - 状態遷移（State Transition）の形式化
+  - 8つの強化されたアサーション
+  - 障害シナリオの述語定義
+- [⚠️ KAOS_OBSTACLE_ANALYSIS.md](KAOS_OBSTACLE_ANALYSIS.md) - 障害分析書
+  - 7つの主要障害の特定
+  - 30以上の回避策の設計
+  - リスクマトリクスによる優先度評価
 
 ### トレーサビリティ
 
